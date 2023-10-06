@@ -303,15 +303,10 @@ const registrar_inventario_admin = async function (req, res) {
             await Producto.findByIdAndUpdate({ _id: data.producto }, { precio: nuevo_precio_producto });
         } else {
             let ganancia_actual = producto.stock * data.costo_unidad;
-            console.log('ganancia_actual: ' + ganancia_actual);
             let ganancia_nueva = data.cantidad * nuevo_precio_producto;
-            console.log('ganancia_nueva: ' + ganancia_nueva);
             let total_stock = producto.stock + data.cantidad;
-            console.log('total_stock: ' + total_stock);
             let total_ganancia = ganancia_actual + ganancia_nueva;
-            console.log('total_ganancia: ' + total_ganancia);
             let nuevo_precio = Math.round(total_ganancia / total_stock);
-            console.log('nuevo_precio: ' + nuevo_precio);
             await Producto.findByIdAndUpdate({ _id: data.producto }, { precio: nuevo_precio });
         }
         res.status(200).send({ data: inventario });
