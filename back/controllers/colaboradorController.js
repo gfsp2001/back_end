@@ -26,7 +26,17 @@ const login_admin = async function (req, res) {
     }
 }
 
+const listar_asesores_admin = async function (req, res) {
+
+    if (req.user) {
+        let colaboradores = await Colaborador.find({ rol: 'Asesor', estado: true }).select('_id fullnames nombres apellidos');
+        res.status(200).send({ data: colaboradores });
+    } else {
+        res.status(403).send({ data: undefined, message: 'NoToken' });
+    }
+}
 
 module.exports = {
-    login_admin
+    login_admin,
+    listar_asesores_admin
 }

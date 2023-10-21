@@ -18,5 +18,7 @@ app.post('/registrar_inventario_admin', auth.auth, productoController.registrar_
 app.get('/listar_inventario_admin', auth.auth, productoController.listar_inventario_admin);
 app.put('/cambiar_estado_producto_admin/:id', auth.auth, productoController.cambiar_estado_producto_admin);
 app.get('/obtener_inventario_admin', auth.auth, productoController.obtener_inventario_admin);
+app.get('/obtener_inventario_entrada_admin/:year/:month', auth.auth, productoController.obtener_inventario_entrada_admin);
+app.get('/obtener_inventario_salida_admin/:year/:month', auth.auth, productoController.obtener_inventario_salida_admin);
 
 module.exports = app;

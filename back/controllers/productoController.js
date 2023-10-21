@@ -1,12 +1,9 @@
 var Producto = require('../models/producto');
 var Variedad = require('../models/variedad');
 var Inventario = require('../models/inventario');
+var Venta_detalle = require('../models/venta_detalle');
 
 var fs = require('fs');
-var handlebars = require('handlebars');
-var ejs = require('ejs');
-var nodemailer = require('nodemailer');
-var smtpTransport = require('nodemailer-smtp-transport');
 var path = require('path');
 
 const crear_producto_admin = async function (req, res) {
@@ -374,6 +371,77 @@ const obtener_inventario_admin = async function (req, res) {
     }
 }
 
+const obtener_inventario_entrada_admin = async function (req, res) {
+    if (req.user) {
+        try {
+            let year = req.params.year;
+            let month = req.params.month;
+
+            let inventario = await Inventario.find()
+                .select('_id cantidad costo_unidad createdAt')
+                .populate({
+                    path: 'producto',
+                    select: '_id titulo'
+                })
+                .populate({
+                    path: 'variedad',
+                    select: '_id sku titulo'
+                })
+                .exec();
+
+            let inventarioArray = inventario.filter(element => {
+                let date = new Date(element.createdAt);
+                let _year = date.getFullYear();
+                let _month = date.getMonth() + 1;
+                return year == _year && month == _month;
+            });
+
+            res.status(200).send({ data: inventarioArray });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ data: undefined });
+        }
+    } else {
+        res.status(404).send({ data: undefined, message: 'NoToken' });
+    }
+};
+
+
+const obtener_inventario_salida_admin = async function (req, res) {
+
+    if (req.user) {
+        try {
+            let year = req.params.year;
+            let month = req.params.month;
+
+            let inventario = await Venta_detalle.find()
+                .select('venta cantidad precio createdAt')
+                .populate({
+                    path: 'producto',
+                    select: '_id titulo'
+                }).populate({
+                    path: 'variedad',
+                    select: '_id sku titulo'
+                }).exec();
+
+            let inventarioArray = inventario.filter(element => {
+                let date = new Date(element.createdAt);
+                let _year = date.getFullYear();
+                let _month = date.getMonth() + 1;
+                return year == _year && month == _month
+            });
+
+            res.status(200).send({ data: inventarioArray });
+        } catch (error) {
+            res.status(200).send({ data: undefined });
+        }
+
+    } else {
+        res.status(404).send({ data: undefined, message: 'NoToken' });
+
+    }
+}
+
 module.exports = {
     crear_producto_admin,
     listar_productos_admin,
@@ -388,4 +456,6 @@ module.exports = {
     listar_inventario_admin,
     cambiar_estado_producto_admin,
     obtener_inventario_admin,
+    obtener_inventario_entrada_admin,
+    obtener_inventario_salida_admin
 }

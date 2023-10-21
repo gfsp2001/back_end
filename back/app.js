@@ -9,6 +9,7 @@ var colaborador_routes = require('./routes/colaborador');
 var cliente_routes = require('./routes/cliente');
 var configuracion_routes = require('./routes/configuracion');
 var producto_routes = require('./routes/producto');
+var venta_routes = require('./routes/venta');
 
 mongoose.set('strictQuery', true);
 mongoose.connect('mongodb://127.0.0.1:27017/negocio', { useUnifiedTopology: true, useNewUrlParser: true })
@@ -37,5 +38,6 @@ app.use('/api', colaborador_routes);
 app.use('/api', cliente_routes);
 app.use('/api', configuracion_routes);
 app.use('/api', producto_routes);
+app.use('/api', venta_routes);
 
 module.exports = app;
