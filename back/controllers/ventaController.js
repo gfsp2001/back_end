@@ -1,9 +1,5 @@
 var Venta = require('../models/venta');
-var Producto = require('../models/producto');
 var Variedad = require('../models/variedad');
-var Pago = require('../models/pago');
-var Venta_detalle = require('../models/venta_detalle');
-var moment = require('moment');
 
 const obtener_variedades_admin = async function (req, res) {
 
