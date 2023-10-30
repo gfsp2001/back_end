@@ -406,7 +406,6 @@ const obtener_inventario_entrada_admin = async function (req, res) {
     }
 };
 
-
 const obtener_inventario_salida_admin = async function (req, res) {
 
     if (req.user) {

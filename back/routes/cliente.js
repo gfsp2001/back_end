@@ -7,5 +7,6 @@ var app = express.Router();
 app.post('/registro_cliente_admin', auth.auth, clienteController.registro_cliente_admin);
 app.get('/listar_clientes_filtro_admin/:filtro', auth.auth, clienteController.listar_clientes_filtro_admin);
 app.get('/listar_clientes_ultimos30_admin', auth.auth, clienteController.listar_clientes_ultimos30_admin);
+app.get('/listar_clientes_modal_admin/:filtro', auth.auth, clienteController.listar_clientes_modal_admin);
 
 module.exports = app;

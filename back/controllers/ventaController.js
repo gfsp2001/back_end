@@ -1,5 +1,9 @@
 var Venta = require('../models/venta');
+var Producto = require('../models/producto');
 var Variedad = require('../models/variedad');
+var Pago = require('../models/pago');
+var Venta_detalle = require('../models/venta_detalle');
+var moment = require('moment');
 
 const obtener_variedades_admin = async function (req, res) {
 
@@ -11,6 +15,95 @@ const obtener_variedades_admin = async function (req, res) {
     } else {
         res.status(404).send({ data: undefined, message: 'NoToken' });
 
+    }
+
+}
+
+const generar_venta_admin = async function (req, res) {
+
+    if (req.user) {
+
+        let today = new Date();
+        let data = req.body;
+
+        let venta = {
+            cliente: data.cliente,
+            asesor: req.user.sub,
+            origen: data.origen,
+            canal: data.canal,
+            estado: data.estado,
+            monto: data.monto,
+            dia: today.getDate(),
+            mes: today.getMonth() + 1,
+            year: today.getFullYear(),
+        }
+
+        let reg_venta = await Venta.create(venta);
+
+        for (var item of data.detalles) {
+            let detalle = {
+                cliente: reg_venta.cliente,
+                asesor: reg_venta.asesor,
+                venta: reg_venta._id,
+                producto: item.producto,
+                precio: item.precio,
+                cantidad: item.cantidad,
+                variedad: item.variedad,
+                dia: today.getDate(),
+                mes: today.getMonth() + 1,
+                year: today.getFullYear(),
+                estado: data.estado,
+            }
+            let reg_detalle = await Venta_detalle.create(detalle);
+
+            let pago = {
+                cliente: reg_venta.cliente,
+                asesor: reg_venta.asesor,
+                venta: reg_venta._id,
+                venta_detalle: reg_detalle._id,
+                tipo: 'Venta',
+                monto: item.precio * item.cantidad,
+                origen: 'Interno',
+                banco: data.banco,
+                metodo: data.metodo,
+                estado: 'Aprobado',
+                fecha: moment(new Date).format('YYYY-MM-DD')
+            }
+            let pagos = await Pago.find().sort({ createdAt: -1 });
+
+            if (pagos.length == 0) {
+                pago.correlativo = 1;
+                await Pago.create(pago);
+            } else {
+                let last_correlativo = pagos[0].correlativo;
+                pago.correlativo = last_correlativo + 1;
+                await Pago.create(pago);
+            }
+            disminuir_stock_admin(reg_detalle.variedad, reg_detalle.producto, reg_detalle.cantidad);
+        }
+        res.status(200).send({ data: venta });
+    } else {
+        res.status(404).send({ data: undefined, message: 'NoToken' });
+    }
+}
+
+const disminuir_stock_admin = async function (id_variedad, id_producto, cantidad) {
+
+    //VARIEDAD
+    try {
+        let variedad = await Variedad.findById({ _id: id_variedad });
+        let nuevo_stock_actual = variedad.stock - parseInt(cantidad);
+        await Variedad.findByIdAndUpdate({ _id: id_variedad }, { stock: nuevo_stock_actual });
+    } catch (error) {
+        console.log(error);
+    }
+    //PRODUCTO
+    try {
+        let producto = await Producto.findById({ _id: id_producto });
+        let nuevo_stock_general = producto.stock - parseInt(cantidad);
+        await Producto.findByIdAndUpdate({ _id: id_producto }, { stock: nuevo_stock_general });
+    } catch (error) {
+        console.log(error);
     }
 
 }
@@ -69,6 +162,7 @@ const enviar_ventas_fechas = async function (req, res) {
 
 module.exports = {
     obtener_variedades_admin,
+    generar_venta_admin,
     enviar_ventas_hoy,
     enviar_ventas_fechas
 }

@@ -62,8 +62,29 @@ const listar_clientes_ultimos30_admin = async function (req, res) {
     }
 }
 
+const listar_clientes_modal_admin = async function (req, res) {
+
+    if (req.user) {
+        let filtro = req.params['filtro'];
+        let clientes = await Cliente.find({
+            $or: [
+                { nombres: new RegExp(filtro, 'i') },
+                { apellidos: new RegExp(filtro, 'i') },
+                { n_doc: new RegExp(filtro, 'i') },
+                { email: new RegExp(filtro, 'i') },
+                { telefono: new RegExp(filtro, 'i') },
+                { fullnames: new RegExp(filtro, 'i') },
+            ]
+        }).select('_id fullnames nombres apellidos email verify tipo');
+        res.status(200).send({ data: clientes });
+    } else {
+        res.status(403).send({ data: undefined, message: 'NoToken' });
+    }
+}
+
 module.exports = {
     registro_cliente_admin,
     listar_clientes_filtro_admin,
     listar_clientes_ultimos30_admin,
+    listar_clientes_modal_admin
 }
