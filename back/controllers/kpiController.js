@@ -143,6 +143,7 @@ const kpi_metodos_pago = async function (req, res) {
             metodo: 'Deposito'
         });
 
+
         let pagos_tarjeta = await Pago.find({
             createdAt: {
                 $gte: new Date(inicio + 'T00:00:00'),
