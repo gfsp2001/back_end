@@ -317,7 +317,6 @@ const registrar_inventario_admin = async function (req, res) {
 const listar_inventario_admin = async function (req, res) {
 
     if (req.user) {
-
         let inventario = await Inventario.find().populate('producto').populate('variedad').sort({ createdAt: -1 });
         res.status(200).send({ data: inventario });
 
